@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html>
+  
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  <meta name="author" content="Dong Yuanxin">
+  
+  
+  <title>Deep Contextualized Word Representations(论文记录) | 吴超群的个人网站</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="StudyNotes,NLP,">
+  
+
+  
+  <meta name="description" content="ELMo是一种新型的深层语境化词向量。">
+
+  
+
+  <script src="//cdn.jsdelivr.net/npm/leancloud-storage@3.11.1/dist/av-min.js" async></script>
+
+  
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+  
+
+  
+    <script src="//unpkg.com/valine/dist/Valine.min.js" async></script>
+  
+
+  
+
+  <script>
+  // theme-ad's config script
+  // it can be used in every script
+  
+  window.AD_CONFIG = {
+    leancloud: {"appid":"VUHeKJKuF54qJr7tPX8OpDUd-gzGzoHsz","appkey":"piJgDncvGEREKtRhOyrPWbJX","comment":true,"count":true},
+    welcome: {"enable":true,"interval":10},
+    start_time: "2019-03-17",
+    passwords: ["efe07af7441da2b69c4a41e42e73be4db47f66010a56900788a458354a7373ec", ],
+    is_post: true,
+    lock: false,
+    author: "Dong Yuanxin",
+    share: {"twitter":true,"facebook":true,"weibo":true,"qq":true,"wechat":true},
+    mathjax: true,
+    page_type: "",
+    root: "/"
+  };
+</script>
+
+  <script src="/vendor/sha256.min.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/index.js"></script>
+<script src="/vendor/qrcode.min.js"></script>
+
+  
+    <link rel="icon" href="/images/favicon.ico">
+    <link rel="apple-touch-icon" href="/images/touch-icon.png">
+  
+
+  <link href="//netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+  <link rel="stylesheet" href="/css/index.css">
+<link rel="stylesheet" href="/styles/components/highlight/highlight.css">
+
+  
+</head>
+  <body>
+    <header class="site-header">
+  <div class="site-header-brand">
+    
+      <span class="site-header-brand-title">
+        <a href="/">CHAOQUN</a>
+      </span>
+    
+    
+      <span class="site-header-brand-motto"> | 努力努力再努力</span>
+    
+  </div>
+  <div class="site-header-right">
+    <nav class="site-header-navigation">
+      
+        <a href="/" target="_self">首页</a>
+      
+        <a href="/archives/" target="_self">归档</a>
+      
+        <a href="/tags/" target="_self">标签</a>
+      
+        <a href="/categories/" target="_self">分类</a>
+      
+        <a href="/friends/" target="_self">友链</a>
+      
+        <a href="/about/" target="_self">关于</a>
+      
+    </nav>
+    <div class="site-header-btn">
+      
+        <a href="https://github.com/Conner-chaoqun/" target="_blank" id="site-github">
+          <i class="fa fa-github-alt"></i>
+        </a>
+      
+      <a href="javascript:void(0);" id="site-search">
+        <i class="fa fa-search"></i>
+      </a>
+      <a href="javascript:void(0);" id="site-nav-btn">
+        <i class="fa fa-ellipsis-v"></i>
+      </a>
+    </div>
+  </div>
+</header>
+<nav class="table-content" id="site-nav">
+  <div class="table-content-title">
+    <span>导航</span>
+  </div>
+  <div class="table-content-main">
+    <ol class="toc">
+      
+        <li class="toc-item">
+          <a href="/" target="_self">
+            首页
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/archives/" target="_self">
+            归档
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/tags/" target="_self">
+            标签
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/categories/" target="_self">
+            分类
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/friends/" target="_self">
+            友链
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/about/" target="_self">
+            关于
+          </a>
+        </li>
+      
+    </ol>
+  </div>
+</nav>
+<div id="site-process"></div>
+    <main>
+      
+  <div class="passage">
+  <div class="passage-meta">
+    <span>
+      <i class="fa fa-calendar"></i>2019-03-17
+    </span>
+    
+      <span>
+        | <a href="/categories/StudyNotes/"><i class="fa fa-bookmark"></i>StudyNotes</a>
+      </span>
+    
+    
+      <span>
+        | <i class="fa fa-unlock-alt"></i>UNLOCK
+      </span>
+    
+  </div>
+  <h1 class="passage-title">
+    Deep Contextualized Word Representations(论文记录)
+  </h1>
+  
+  <article class="passage-article">
+    <h3 id="Deep-Contextualized-Word-Representations"><a href="#Deep-Contextualized-Word-Representations" class="headerlink" title="Deep Contextualized Word Representations"></a>Deep Contextualized Word Representations</h3><h4 id="Motivation"><a href="#Motivation" class="headerlink" title="Motivation"></a>Motivation</h4><p>在目前的NLP的各种任务中，加入word embedding都取得了最好的效果。</p>
+<p>ELMo就是其中的佼佼者，该论文发表于2018年的NNACL上，可以称为是目前最好用词向量。</p>
+<p>单词表示是很多神经语言理解模型的关键组件之一，而一个高质量的词向量更是一个多年研究的挑战性任务。</p>
+<p>ELMo的优势在于满足一个好的词向量的要求</p>
+<ol>
+<li><p>能够学习和反映出词汇的复杂特征（例如，语法和语义）</p>
+</li>
+<li><p>能够准确学习和表达不同上下文情境下的词汇多义性</p>
+</li>
+</ol>
+<p>在解决这两大难题的同时，可以轻松的集成到现有的模型当中，并在不同的NLP问题上显著改善。</p>
+<h4 id="Background-amp-amp-Related-work"><a href="#Background-amp-amp-Related-work" class="headerlink" title="Background &amp;&amp; Related work"></a>Background &amp;&amp; Related work</h4><p>ELMo是一种新型的深层语境化词向量。</p>
+<p>传统的嵌入式词向量模型中，每一个词对应一个向量，缺点就是对于每一个单词都仅剩下唯一的表示</p>
+<p>对于多义词来说，显然是不可行的。</p>
+<p>所以ELMo根据一个句子来赋予每一个词的词向量，使用双向LSTM派生得到的向量。</p>
+<p>而且基于biLM内部层函数的深层模型，对每一个结束任务的每个输入进行线性组合。</p>
+<p>把在一个大规模的语料集上预训练好的biLM作为动态计算词向量的前向网络。</p>
+<p>具体的训练在下文描述，简单来说就是一个多层的双向LSTMs结构，biLMs。</p>
+<p>大量的实验都证明了ELMo在实践中非常有效：</p>
+<ul>
+<li><p>biLMs的较高层次的隐藏单元向量，或者说LSTM状态会很好的捕获到词义在相关上下文的意义表示，不需要修改就可以在很多词义检测消除歧义的任务下得到很好的结果。</p>
+</li>
+<li><p>而在较低级别的层次可以得到很好的词汇语法信息，可用于词性标注的相关任务。</p>
+</li>
+<li><p>这种暴露深度模型所有信号带来的分层效果，可以让不同任务根据需要选择有用的信息，使得一套词向量用于不同任务有了可能性。</p>
+</li>
+<li><p>在六种不同的NPL问题下，包括文本蕴涵，QA等等都得到了显著的提高。</p>
+</li>
+</ul>
+<h4 id="ELMo"><a href="#ELMo" class="headerlink" title="ELMo"></a>ELMo</h4><p><code>Embeddings from Language Models</code></p>
+<p>不同于原先的<code>word embeddings</code> ，<code>ELMo word representations are functions of the entire input sentence.</code></p>
+<p>整个模型是从深层双向语言模型中的内部状态学习得到的。</p>
+<h5 id="双向语言模型"><a href="#双向语言模型" class="headerlink" title="双向语言模型"></a>双向语言模型</h5><p>很明显就是一个前向和一个后向语言模型的组合。</p>
+<p>前向语言模型就是，由上文预测下一个词，也就是给你一连串的N个tokens，词汇序列(t_1,t_2,…,t_N)，然后通过已知的（t_1,t_2,…,t_k-1）预测t_k的概率，公式如下：</p>
+<p>通过字符卷积获得原始的“上下文无关”的词向量，然后将此向量传入，在具体某一层的某一个位置k都会得到一个输出，最顶层的输出加上一个softmax的值就可以预测t_k。</p>
+<p>同理后向的语言模型，就是通过下文预测之前的词:</p>
+<p>所以双向的语言模型（biLM）结合前向后向，有两个LSTM单元，</p>
+<p>Θ x是输入的最初始的词向量，Θ s 就是softmax层的参数</p>
+<p>前面的biLM只是一个单层的模型，ELMo是双向语言模型biLM的多层表示的组合，对于某一个词语t_k，一个L层的双向语言模型biLM能够由2L+1个向量表示。</p>
+<p>也就是之前所说的每一层都有代表不同的意义，所以不同任务下，每层所带的权重也就不同。</p>
+<p>一般化的处理手段是利用每层状态的线性组合。</p>
+<p>而γ允许具体的task模型去放缩 ELMo 的大小，这个地方非常重要， 作者在补充中进行了强调， 在没有这个的情况下，只采用该模型的最后一层输出作为词向量的时候的效果甚至差于 baseline。这个重要的原因是， biLM的内部表征和具体任务的表征的分布是不一样的。</p>
+<p>现在我们已经了解到首先都要基于字符卷积来得到初始的词向量，而解决字符卷积的低效问题就是biLM网络。</p>
+<p>至于使用方式：</p>
+<ul>
+<li><p>直接将ELMo词向量ELMo_k与普通的词向量x_k拼接（concat）</p>
+</li>
+<li><p>或者将ELMo词向量ELMo_k与隐层输出向量h_k拼接（concat）</p>
+</li>
+</ul>
+<h5 id="Analysis"><a href="#Analysis" class="headerlink" title="Analysis"></a>Analysis</h5><p>就是通过控制变量法，去确定模型中哪些参数更加重要。</p>
+<p><strong>Textual entailment:</strong> stanford natural language inference (SNLI)数据集上提升了1.4%。</p>
+<p><strong>Question answering:</strong>在stanford question answering dataset (SQuAD)数据集上提升了4.2%，将ELMo加入到之前的state-of-the-art的ensemble模型中，提升了10%。</p>
+<p><strong>Semantic role labeling:</strong>比之前的state-of-the-art模型提高了3.2%，将ELMo加入到之前的state-of-the-art的ensemble模型中，提升了1.2%。</p>
+<p><strong>Coreference resolution:</strong>比之前的state-of-the-art模型提高了3.2%，将ELMo加入到之前的state-of-the-art的ensemble模型中，提升了1.6%。</p>
+<p><strong>Named entity extraction:</strong>在CoNLL 2003 NER task数据机上提高了2.06%</p>
+<p><strong>Sentiment analysis:</strong>比之前的state-of-the-art模型提高了3.3%，将ELMo加入到之前的state-of-the-art的ensemble模型中，提升了1%。</p>
+<h5 id="Sample-efﬁciency"><a href="#Sample-efﬁciency" class="headerlink" title="Sample efﬁciency"></a>Sample efﬁciency</h5><p>如图所示的话，EMLo称得上是又好又快。</p>
+<ul>
+<li>在不加 ELMo 的情况下去训练 SRL model , 达到最佳 F1 值要在 486 个epoch之后, 但是在加了 ELMo 之后, 只需要十个回合便超越了原来的 F1 值. 降低了98%的时间消耗。</li>
+<li>在使用更少数据下便可以能够获得同样的效果.</li>
+</ul>
+<p><img src="https://ws1.sinaimg.cn/mw690/006aWQZaly1fy0szc7rq4j30r80kqgph.jpg" alt></p>
+<h4 id="Conclusion"><a href="#Conclusion" class="headerlink" title="Conclusion"></a>Conclusion</h4><p>到此，我们初略明白了Elmo如何从biLM学习得到高质量的上下文相关的词向量，而且在应用于广泛的NPL问题都有很好的改善。当然这里描述的不够准确和完善，具体还是要看论文本身。</p>
+  </article>
+  <aside class="table-content" id="site-toc">
+  <div class="table-content-title">
+    <i class="fa fa-arrow-right fa-lg" id="site-toc-hide-btn"></i>
+    <span>目录</span>
+  </div>
+  <div class="table-content-main">
+    <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#Deep-Contextualized-Word-Representations"><span class="toc-text">Deep Contextualized Word Representations</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Motivation"><span class="toc-text">Motivation</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Background-amp-amp-Related-work"><span class="toc-text">Background &amp;&amp; Related work</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#ELMo"><span class="toc-text">ELMo</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#双向语言模型"><span class="toc-text">双向语言模型</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#Analysis"><span class="toc-text">Analysis</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#Sample-efﬁciency"><span class="toc-text">Sample efﬁciency</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Conclusion"><span class="toc-text">Conclusion</span></a></li></ol></li></ol>
+  </div>
+</aside>
+  
+    <aside class="passage-copyright">
+      <div>本文作者: 吴超群</div>
+      
+        <div>
+          原文链接: 
+          <a href target="_blank">http://blog.chaoqun.ink/passages/2019-03-17-ELMo/</a>
+        </div>
+      
+      <div>
+        版权声明: 本博客所有文章除特别声明外, 均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议. 转载请注明出处!
+      </div>
+    </aside>
+  
+  
+    <div class="passage-tags">
+     
+      <a href="/tags/NLP/"><i class="fa fa-tags"></i>NLP</a>
+    
+    </div>
+  
+</div>
+
+    </main>
+    
+      
+<div class="site-comment-contanier" data-plateform="leancloud">
+  
+    <p id="site-comment-info">
+      <i class="fa fa-spinner fa-spin"></i> 评论加载中
+    </p>
+    <div id="site-comment"></div>
+  
+</div>
+    
+    <div class="site-footer-wrapper">
+  <footer class="site-footer">
+    
+      <div class="site-footer-col">
+        <h5 class="site-footer-title">博客推荐</h5>
+        
+          <span class="site-footer-item">
+            <a href="https://godbmw.com/" target="_blank">GodBMW</a>
+          </span>
+        
+          <span class="site-footer-item">
+            <a href="http://ruanyifeng.com/" target="_blank">阮一峰的个人网站</a>
+          </span>
+        
+      </div>
+    
+      <div class="site-footer-col">
+        <h5 class="site-footer-title">抓到我</h5>
+        
+          <span class="site-footer-item">
+            <a href="chaoqun.ink" target="_self">old version1</a>
+          </span>
+        
+      </div>
+    
+    <div class="site-footer-info">
+      <i class="fa fa-clock-o"></i> 本站已稳定运行<span id="site-time"></span>
+    </div>
+    
+      <div class="site-footer-info">
+        <i class="fa fa-paw"></i> 您是本站第 <span id="site-count"></span> 位访客
+      </div>
+    
+    
+      <div class="site-footer-info">
+        <i class="fa fa-at"></i> Email: chaoqun@pku.edu.cn
+      </div>
+    
+    <div class="site-footer-info">
+      <i class="fa fa-copyright"></i> 
+      2019 <a href="https://github.com/dongyuanxin/theme-ad/" target="_blank">Theme-AD</a>.
+      Created by <a href="https://godbmw.com/" target="_blank">GodBMW</a>.
+      All rights reserved.
+    </div>
+  </footer>
+</div>
+    <div id="site-layer" style="display:none;">
+  <div class="site-layer-content">
+    <div class="site-layer-header">
+      <span class="site-layer-header-title" id="site-layer-title"></span>
+      <i class="fa fa-close" id="site-layer-close"></i>
+    </div>
+    <div class="site-layer-body" id="site-layer-container">
+      <div class="site-layer-input" id="site-layer-search" style="display: none;">
+        <input type="text">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="site-layer-reward" id="site-layer-reward" style="display: none;">
+        
+          <div>
+            <img src="/images/wechat.png" alt="WeChat">
+            
+              <p>WeChat</p>
+            
+          </div>
+        
+          <div>
+            <img src="/images/alipay.png" alt="AliPay">
+            
+              <p>AliPay</p>
+            
+          </div>
+        
+      </div>
+      <div id="site-layer-welcome" style="display:none;"></div>
+    </div>
+  </div>
+</div>
+    
+
+<div class="bottom-bar">
+  <div class="bottom-bar-left">
+    <a href="javascript:void(0);" data-enable="false">
+      <i class="fa fa-arrow-left"></i>
+    </a>
+    <a href="/passages/2019-03-17-nginx/" data-enable="true">
+      <i class="fa fa-arrow-right"></i>
+    </a>
+  </div>
+  <div class="bottom-bar-right">
+    <a href="javascript:void(0);" data-enable="true" id="site-toc-show-btn">
+      <i class="fa fa-bars"></i>
+    </a>
+    
+      <a href="#site-comment" data-enable="true">
+        <i class="fa fa-commenting"></i>
+      </a>
+    
+    <a href="javascript:void(0);" id="site-toggle-share-btn">
+      <i class="fa fa-share-alt"></i>
+    </a>
+    <a href="javascript:void(0);" id="site-reward">
+      <i class="fa fa-thumbs-up"></i>
+    </a>
+    <a href="javascript:void(0);" id="back-top-btn">
+      <i class="fa fa-chevron-up"></i>
+    </a>
+  </div>
+</div>
+    <div id="share-btn">
+  
+    <a id="share-btn-twitter" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-twitter"></i>
+    </a>
+  
+  
+    <a id="share-btn-facebook" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-facebook"></i>
+    </a>
+  
+  
+    <a id="share-btn-weibo" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-weibo"></i>
+    </a>
+  
+  
+    <a id="share-btn-qq" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-qq"></i>
+    </a>
+  
+  
+    <a id="share-btn-wechat" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-wechat"></i>
+    </a>
+  
+</div>
+    
+
+
+  <script async>
+  (function(){
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      if (curProtocol === 'https') {
+          bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+      }
+      else {
+          bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+      }
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+  })();
+  </script>
+
+
+
+
+    
+  </body>
+</html>

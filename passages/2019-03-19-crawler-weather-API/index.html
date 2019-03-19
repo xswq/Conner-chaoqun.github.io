@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html>
+  
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  <meta name="author" content="Dong Yuanxin">
+  
+  
+  <title>通过爬虫构建一个简单的天气接口 | 吴超群的个人网站</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="Coursework,crawler,python,">
+  
+
+  
+  <meta name="description" content="自行开发一个天气信息的接口">
+
+  
+
+  <script src="//cdn.jsdelivr.net/npm/leancloud-storage@3.11.1/dist/av-min.js" async></script>
+
+  
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+  
+
+  
+    <script src="//unpkg.com/valine/dist/Valine.min.js" async></script>
+  
+
+  
+
+  <script>
+  // theme-ad's config script
+  // it can be used in every script
+  
+  window.AD_CONFIG = {
+    leancloud: {"appid":"VUHeKJKuF54qJr7tPX8OpDUd-gzGzoHsz","appkey":"piJgDncvGEREKtRhOyrPWbJX","comment":true,"count":true},
+    welcome: {"enable":true,"interval":10},
+    start_time: "2019-03-17",
+    passwords: ["efe07af7441da2b69c4a41e42e73be4db47f66010a56900788a458354a7373ec", ],
+    is_post: true,
+    lock: false,
+    author: "Dong Yuanxin",
+    share: {"twitter":true,"facebook":true,"weibo":true,"qq":true,"wechat":true},
+    mathjax: true,
+    page_type: "",
+    root: "/"
+  };
+</script>
+
+  <script src="/vendor/sha256.min.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/index.js"></script>
+<script src="/vendor/qrcode.min.js"></script>
+
+  
+    <link rel="icon" href="/images/favicon.ico">
+    <link rel="apple-touch-icon" href="/images/touch-icon.png">
+  
+
+  <link href="//netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+  <link rel="stylesheet" href="/css/index.css">
+<link rel="stylesheet" href="/styles/components/highlight/highlight.css">
+
+  
+</head>
+  <body>
+    <header class="site-header">
+  <div class="site-header-brand">
+    
+      <span class="site-header-brand-title">
+        <a href="/">CHAOQUN</a>
+      </span>
+    
+    
+      <span class="site-header-brand-motto"> | 努力努力再努力</span>
+    
+  </div>
+  <div class="site-header-right">
+    <nav class="site-header-navigation">
+      
+        <a href="/" target="_self">首页</a>
+      
+        <a href="/archives/" target="_self">归档</a>
+      
+        <a href="/tags/" target="_self">标签</a>
+      
+        <a href="/categories/" target="_self">分类</a>
+      
+        <a href="/friends/" target="_self">友链</a>
+      
+        <a href="/about/" target="_self">关于</a>
+      
+    </nav>
+    <div class="site-header-btn">
+      
+        <a href="https://github.com/Conner-chaoqun/" target="_blank" id="site-github">
+          <i class="fa fa-github-alt"></i>
+        </a>
+      
+      <a href="javascript:void(0);" id="site-search">
+        <i class="fa fa-search"></i>
+      </a>
+      <a href="javascript:void(0);" id="site-nav-btn">
+        <i class="fa fa-ellipsis-v"></i>
+      </a>
+    </div>
+  </div>
+</header>
+<nav class="table-content" id="site-nav">
+  <div class="table-content-title">
+    <span>导航</span>
+  </div>
+  <div class="table-content-main">
+    <ol class="toc">
+      
+        <li class="toc-item">
+          <a href="/" target="_self">
+            首页
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/archives/" target="_self">
+            归档
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/tags/" target="_self">
+            标签
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/categories/" target="_self">
+            分类
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/friends/" target="_self">
+            友链
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/about/" target="_self">
+            关于
+          </a>
+        </li>
+      
+    </ol>
+  </div>
+</nav>
+<div id="site-process"></div>
+    <main>
+      
+  <div class="passage">
+  <div class="passage-meta">
+    <span>
+      <i class="fa fa-calendar"></i>2019-03-19
+    </span>
+    
+      <span>
+        | <a href="/categories/Coursework/"><i class="fa fa-bookmark"></i>Coursework</a>
+      </span>
+    
+    
+      <span>
+        | <i class="fa fa-unlock-alt"></i>UNLOCK
+      </span>
+    
+  </div>
+  <h1 class="passage-title">
+    通过爬虫构建一个简单的天气接口
+  </h1>
+  
+  <article class="passage-article">
+    <h2 id="构建天气API"><a href="#构建天气API" class="headerlink" title="构建天气API"></a>构建天气API</h2><h3 id="要求是自行开发一个天气信息的接口"><a href="#要求是自行开发一个天气信息的接口" class="headerlink" title="要求是自行开发一个天气信息的接口"></a>要求是自行开发一个天气信息的接口</h3><p>给出了<a href="https://www.sojson.com/blog/305.html" target="_blank" rel="noopener">免费天气API地址</a></p>
+<h3 id="爬取各地区今日天气信息"><a href="#爬取各地区今日天气信息" class="headerlink" title="爬取各地区今日天气信息"></a>爬取各地区今日天气信息</h3><p>思路很直白，就是构建URL，爬取，存储返回的json数据。需要注意的是<strong>每分钟阈值为300次，如果超过会禁用3600秒。请谨慎使用</strong>。所以为了不要给免费的接口太多压力，同时也避免被封，我测了一下时间爬一次在0.05~0.1秒左右，不加以限制，马上就封了（<del>虽然不知道会不会真的被封</del>），我就简单的每次爬取都休眠一段时间，当然你也可以计数300次停止，等下一次1分钟开始。</p>
+<p>网站提供了一个city.json的每个地区的cityCode，但是我下载下来有部分地区的cityCode不存在，所以我就自己想办法了。</p>
+<p>因为有老师免费提供的ins_city.sql文件，所以我就直接<strong>正则表达式</strong>匹配得到cityCode，然后带上身份伪装的header头，就可以开心的爬取存在文件里。当然你也可以不存，直接就写进数据库里面，其实都无所谓。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests <span class="comment">#请求用的</span></span><br><span class="line"><span class="keyword">import</span> time <span class="comment">#计时用的</span></span><br><span class="line"><span class="keyword">import</span> re,io <span class="comment">#正则匹配用的,io是因服务器python是2.7版本的避免open()报错</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#正则匹配所有的citycode</span></span><br><span class="line">cityCode = []</span><br><span class="line"><span class="keyword">with</span> io.open(<span class="string">'ins_city.sql'</span>, <span class="string">'r'</span>, encoding=<span class="string">"utf-8"</span>) <span class="keyword">as</span> f:</span><br><span class="line">    str = f.read()</span><br><span class="line">    cityCode = re.findall(<span class="string">r"', '(\d+?)', null, '2018/7/29"</span>, str)</span><br><span class="line"><span class="comment">#伪装一下</span></span><br><span class="line">headers = &#123;<span class="string">'User-Agent'</span>: <span class="string">'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.13; rv:62.0) '</span></span><br><span class="line">                         <span class="string">'Gecko/20100101 Firefox/62.0'</span>&#125;</span><br><span class="line"><span class="comment">#开始计时</span></span><br><span class="line">startTime = time.time();</span><br><span class="line"><span class="comment">#读取每一个cityCode构建一个url请求，将返回json数据存入文件</span></span><br><span class="line"><span class="keyword">with</span> io.open(<span class="string">'cityCode.txt'</span>, <span class="string">'w'</span>, encoding=<span class="string">"utf-8"</span>) <span class="keyword">as</span> f:</span><br><span class="line">    <span class="keyword">for</span> code <span class="keyword">in</span> cityCode:</span><br><span class="line">        time.sleep(<span class="number">0.2</span>)</span><br><span class="line">        url = <span class="string">"http://t.weather.sojson.com/api/weather/city/"</span> + code</span><br><span class="line">        r = requests.get(url, headers=headers)</span><br><span class="line">        print(url)</span><br><span class="line">        f.write(r.text+<span class="string">'\n'</span>)</span><br><span class="line"><span class="comment">#打印花费时间</span></span><br><span class="line">print(<span class="string">'[info]耗时：%s'</span> % (time.time() - startTime))</span><br></pre></td></tr></table></figure>
+<p>效率的话，正则匹配所有的cityCode，秒级吧，1，2秒；后面的话每次爬取我都先睡0.2秒，最后好像花了1300s左右（<del>忘记了</del>）</p>
+<h2 id="存进数据库"><a href="#存进数据库" class="headerlink" title="存进数据库"></a>存进数据库</h2><p>已经有啦数据，就可以存进数据库了，我这个代码都是在本机写好的，然后上传到服务器，然后运行，老样子先写好代码</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> MySQLdb,io <span class="comment">#填你自己的数据库信息，不知道去application/datebase.php里面看</span></span><br><span class="line">db = MySQLdb.connect(<span class="string">"127.0.0.1"</span>, <span class="string">"你的用户名"</span>, <span class="string">"你的密码"</span>, <span class="string">"你的数据库名"</span>, charset=<span class="string">'utf8'</span> )</span><br><span class="line"><span class="comment">#中规中矩的更新操作，但还是有小细节需要注意</span></span><br><span class="line"><span class="keyword">with</span> io.open (<span class="string">'cityCode.txt'</span>,<span class="string">'r'</span>,encoding=<span class="string">'utf-8'</span>) <span class="keyword">as</span> f:</span><br><span class="line">    cursor = db.cursor()</span><br><span class="line">    num = <span class="number">0</span></span><br><span class="line">    <span class="keyword">for</span> line <span class="keyword">in</span> f.readlines():</span><br><span class="line">        num = num + <span class="number">1</span></span><br><span class="line">        strline = line.strip() <span class="comment">#去掉最后'\n'</span></span><br><span class="line">        <span class="comment">#下一行是记得加两个''，对了我这里已经把数据库weather_info改成varchar（2000）</span></span><br><span class="line">        sql = <span class="string">"update ins_county set weather_info = '"</span>+strline+<span class="string">"' where id = "</span>+str(num)</span><br><span class="line">        print(num)</span><br><span class="line">        <span class="comment">#执行提交操作，异常就回滚</span></span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            cursor.execute(sql)</span><br><span class="line">            db.commit()</span><br><span class="line">        <span class="keyword">except</span>:</span><br><span class="line">            db.rollback()</span><br><span class="line"><span class="comment">#最后关闭数据库连接</span></span><br><span class="line">db.close()</span><br></pre></td></tr></table></figure>
+<p>效率的话10s左右吧（没有计时）。</p>
+<p>当然你现在还只是写好代码，还需要上传到服务器上，让服务器跑。</p>
+<p>我这里在application/api目录下新建了一个apiUpdate的文件夹，里面包含了这些代码和文件，下面截个图：</p>
+<p><img src="https://ws1.sinaimg.cn/large/006aWQZaly1fxtmt9866ej31bi0q278b.jpg" alt></p>
+<p>然后我是ssh登录到服务器，cd到对应的文件夹，运行</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ssh -p 2022 root@wuchaoqun.xyz <span class="comment">#我这里是把端口号改成了2022，正常的话就直接不用写出端口号,然后就输密码</span></span><br><span class="line"><span class="built_in">cd</span> 你存在文件的目录 <span class="comment">#然后ls看看对不对</span></span><br><span class="line">python updateSQL.py <span class="comment">#运行即可</span></span><br></pre></td></tr></table></figure>
+<h3 id="php构建api接口"><a href="#php构建api接口" class="headerlink" title="php构建api接口"></a>php构建api接口</h3><p>首先在model文件夹下，新建一个php文件，名字随你（注意开头大写，和类名相同），我这里是Weather.php，</p>
+<p><img src="https://ws1.sinaimg.cn/large/006aWQZaly1fxtn0k73pbj31me0bq767.jpg" alt></p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="keyword">namespace</span> <span class="title">app</span>\<span class="title">api</span>\<span class="title">model</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">use</span> <span class="title">think</span>\<span class="title">Model</span>;</span><br><span class="line"><span class="keyword">use</span> <span class="title">think</span>\<span class="title">Db</span>;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Weather</span> <span class="keyword">extends</span> <span class="title">Model</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">getCityCode</span><span class="params">($county_name = <span class="string">'北京'</span>)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        $res = Db::name(<span class="string">'ins_county'</span>)-&gt;where(<span class="string">'county_name'</span>, $county_name)-&gt;column(<span class="string">'weather_code'</span>);</span><br><span class="line">        <span class="keyword">return</span> $res;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">getWeather</span><span class="params">($weather_code = <span class="string">'101010100'</span>)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        $res = Db::name(<span class="string">'ins_county'</span>)-&gt;where(<span class="string">'weather_code'</span>, $weather_code)-&gt;column(<span class="string">'weather_info'</span>);</span><br><span class="line">        <span class="keyword">return</span> $res;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>没什么好说的，就是查找的sql语句</p>
+<p>然后在controller目录下新建一个php文件（名字无所谓，就是url里面的控制器部分的名字）,我这里是Weather.php</p>
+<p><img src="https://ws1.sinaimg.cn/large/006aWQZaly1fxtn3s0jxcj31lo0hy77m.jpg" alt></p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="keyword">namespace</span> <span class="title">app</span>\<span class="title">api</span>\<span class="title">controller</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">use</span> <span class="title">think</span>\<span class="title">Controller</span>;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Weather</span> <span class="keyword">extends</span> <span class="title">Controller</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">read</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        $weather_code = input(<span class="string">'weather_code'</span>);</span><br><span class="line">        $model = model(<span class="string">'Weather'</span>);</span><br><span class="line">        $data = $model-&gt;getWeather($weather_code);</span><br><span class="line">        <span class="keyword">if</span> ($data) &#123;</span><br><span class="line">            $code = <span class="number">200</span>;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            $code = <span class="number">404</span>;</span><br><span class="line">        &#125;</span><br><span class="line">      	<span class="keyword">return</span> json(json_decode($data[<span class="number">0</span>]));</span><br><span class="line">    &#125;</span><br><span class="line">  	<span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">getCityCode</span><span class="params">()</span></span>&#123;</span><br><span class="line">        $county_name = input(<span class="string">'county_name'</span>);</span><br><span class="line">        $model = model(<span class="string">'Weather'</span>);</span><br><span class="line">        $data = $model-&gt;getCityCode($county_name);</span><br><span class="line">      	$data = [</span><br><span class="line">            $county_name =&gt; $data[<span class="number">0</span>]</span><br><span class="line">        ];</span><br><span class="line">        <span class="keyword">return</span> json($data);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>read()接受一个weather_code的参数，关联model，调用model(’Weather‘)的数据库操作，返回json数据</p>
+<p>getCityCode()同理，接受一个county_name参数，调用model(’Weather‘)的数据库操作，最后返回json数据</p>
+<p>都很好懂。</p>
+<p>最后按照作业要求去application/route.php文件里面添加路由规则即可。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Route::rule(<span class="string">'weather/:weather_code'</span>, <span class="string">'api/weather/read'</span>);</span><br><span class="line">Route::rule(<span class="string">'city/:county_name'</span>, <span class="string">'api/weather/getCityCode'</span>);</span><br></pre></td></tr></table></figure>
+<p>最后api运行结果符合预期</p>
+<p><img src="https://ws1.sinaimg.cn/large/006aWQZaly1fxtnaze2dej31xq0hi12l.jpg" alt></p>
+<p><img src="https://ws1.sinaimg.cn/large/006aWQZaly1fxtnb6im7aj31hw06mt9d.jpg" alt></p>
+<h3 id="每日零点更新"><a href="#每日零点更新" class="headerlink" title="每日零点更新"></a>每日零点更新</h3><p>crontab 一个Linux命令</p>
+<p>可以用来提交和管理用户的需要周期性执行的任务</p>
+<p>很明显我们可以把我们刚刚的爬取操作和更新数据库操作作为脚本每天零点让服务器默默更新</p>
+<p>首先，我在刚刚的application/api/apiUpdate文件夹里面新建一个update.sh文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">vi update.sh</span><br><span class="line"><span class="comment">#执行下面的python脚本</span></span><br><span class="line"><span class="built_in">cd</span> /www//wwwroot/58.87.94.81_test01/application/api/apiUpdate/</span><br><span class="line">python weatherApi.py</span><br><span class="line">python updateSQL.py</span><br></pre></td></tr></table></figure>
+<p>然后在用户任务调度级别，也就是/var/spool/cron/里面可以看到所有的以用户为名的crontab文件，这里我服务器上只有一个用户就是root，</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> /var/spool/cron/</span><br><span class="line">vi root</span><br><span class="line"><span class="comment">#添加下面这个任务,具体的路径你自己改成自己的，* * * * * 的含义</span></span><br><span class="line"><span class="comment">#minute： 表示分钟，可以是从0到59之间的任何整数。</span></span><br><span class="line"><span class="comment">#hour：表示小时，可以是从0到23之间的任何整数。</span></span><br><span class="line"><span class="comment">#day：表示日期，可以是从1到31之间的任何整数。</span></span><br><span class="line"><span class="comment">#month：表示月份，可以是从1到12之间的任何整数。</span></span><br><span class="line"><span class="comment">#表示星期几，可以是从0到7之间的任何整数，这里的0或7代表星期日。</span></span><br><span class="line"><span class="comment">#这里我设定零点执行</span></span><br><span class="line">0 0 * * * /www/wwwroot/58.87.94.81_test01/application/api/apiUpdate/update.sh</span><br></pre></td></tr></table></figure>
+<hr>
+<p>json_decode(str)=&gt;得到对应的数组array，<br>然后json(array)=&gt;得到最后的json数据<br>具体看php构建API接口处<br>更新于2018-12-17</p>
+  </article>
+  <aside class="table-content" id="site-toc">
+  <div class="table-content-title">
+    <i class="fa fa-arrow-right fa-lg" id="site-toc-hide-btn"></i>
+    <span>目录</span>
+  </div>
+  <div class="table-content-main">
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#构建天气API"><span class="toc-text">构建天气API</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#要求是自行开发一个天气信息的接口"><span class="toc-text">要求是自行开发一个天气信息的接口</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#爬取各地区今日天气信息"><span class="toc-text">爬取各地区今日天气信息</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#存进数据库"><span class="toc-text">存进数据库</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#php构建api接口"><span class="toc-text">php构建api接口</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#每日零点更新"><span class="toc-text">每日零点更新</span></a></li></ol></li></ol>
+  </div>
+</aside>
+  
+    <aside class="passage-copyright">
+      <div>本文作者: 吴超群</div>
+      
+        <div>
+          原文链接: 
+          <a href target="_blank">http://blog.chaoqun.ink/passages/2019-03-19-crawler-weather-API/</a>
+        </div>
+      
+      <div>
+        版权声明: 本博客所有文章除特别声明外, 均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议. 转载请注明出处!
+      </div>
+    </aside>
+  
+  
+    <div class="passage-tags">
+     
+      <a href="/tags/crawler/"><i class="fa fa-tags"></i>crawler</a>
+     
+      <a href="/tags/python/"><i class="fa fa-tags"></i>python</a>
+    
+    </div>
+  
+</div>
+
+    </main>
+    
+      
+<div class="site-comment-contanier" data-plateform="leancloud">
+  
+    <p id="site-comment-info">
+      <i class="fa fa-spinner fa-spin"></i> 评论加载中
+    </p>
+    <div id="site-comment"></div>
+  
+</div>
+    
+    <div class="site-footer-wrapper">
+  <footer class="site-footer">
+    
+      <div class="site-footer-col">
+        <h5 class="site-footer-title">博客推荐</h5>
+        
+          <span class="site-footer-item">
+            <a href="https://wyydsb.xin/" target="_blank">Gunjianpan</a>
+          </span>
+        
+      </div>
+    
+      <div class="site-footer-col">
+        <h5 class="site-footer-title">抓到我</h5>
+        
+          <span class="site-footer-item">
+            <a href="http://chaoqun.ink" target="_blank">old version</a>
+          </span>
+        
+      </div>
+    
+    <div class="site-footer-info">
+      <i class="fa fa-clock-o"></i> 本站已稳定运行<span id="site-time"></span>
+    </div>
+    
+      <div class="site-footer-info">
+        <i class="fa fa-paw"></i> 您是本站第 <span id="site-count"></span> 位访客
+      </div>
+    
+    
+      <div class="site-footer-info">
+        <i class="fa fa-at"></i> Email: chaoqun@pku.edu.cn
+      </div>
+    
+    <div class="site-footer-info">
+      <i class="fa fa-copyright"></i> 
+      2019 <a href="https://github.com/dongyuanxin/theme-ad/" target="_blank">Theme-AD</a>.
+      Created by <a href="https://godbmw.com/" target="_blank">GodBMW</a>.
+      All rights reserved.
+    </div>
+  </footer>
+</div>
+    <div id="site-layer" style="display:none;">
+  <div class="site-layer-content">
+    <div class="site-layer-header">
+      <span class="site-layer-header-title" id="site-layer-title"></span>
+      <i class="fa fa-close" id="site-layer-close"></i>
+    </div>
+    <div class="site-layer-body" id="site-layer-container">
+      <div class="site-layer-input" id="site-layer-search" style="display: none;">
+        <input type="text">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="site-layer-reward" id="site-layer-reward" style="display: none;">
+        
+          <div>
+            <img src="/images/wechat.png" alt="WeChat">
+            
+              <p>WeChat</p>
+            
+          </div>
+        
+          <div>
+            <img src="/images/alipay.png" alt="AliPay">
+            
+              <p>AliPay</p>
+            
+          </div>
+        
+      </div>
+      <div id="site-layer-welcome" style="display:none;"></div>
+    </div>
+  </div>
+</div>
+    
+
+<div class="bottom-bar">
+  <div class="bottom-bar-left">
+    <a href="javascript:void(0);" data-enable="false">
+      <i class="fa fa-arrow-left"></i>
+    </a>
+    <a href="/passages/2019-03-19-crawler/" data-enable="true">
+      <i class="fa fa-arrow-right"></i>
+    </a>
+  </div>
+  <div class="bottom-bar-right">
+    <a href="javascript:void(0);" data-enable="true" id="site-toc-show-btn">
+      <i class="fa fa-bars"></i>
+    </a>
+    
+      <a href="#site-comment" data-enable="true">
+        <i class="fa fa-commenting"></i>
+      </a>
+    
+    <a href="javascript:void(0);" id="site-toggle-share-btn">
+      <i class="fa fa-share-alt"></i>
+    </a>
+    <a href="javascript:void(0);" id="site-reward">
+      <i class="fa fa-thumbs-up"></i>
+    </a>
+    <a href="javascript:void(0);" id="back-top-btn">
+      <i class="fa fa-chevron-up"></i>
+    </a>
+  </div>
+</div>
+    <div id="share-btn">
+  
+    <a id="share-btn-twitter" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-twitter"></i>
+    </a>
+  
+  
+    <a id="share-btn-facebook" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-facebook"></i>
+    </a>
+  
+  
+    <a id="share-btn-weibo" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-weibo"></i>
+    </a>
+  
+  
+    <a id="share-btn-qq" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-qq"></i>
+    </a>
+  
+  
+    <a id="share-btn-wechat" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-wechat"></i>
+    </a>
+  
+</div>
+    
+
+
+  <script async>
+  (function(){
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      if (curProtocol === 'https') {
+          bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+      }
+      else {
+          bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+      }
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+  })();
+  </script>
+
+
+
+
+    
+  </body>
+</html>

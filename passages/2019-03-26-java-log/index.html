@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html>
+  
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  <meta name="author" content="Dong Yuanxin">
+  
+  
+  <title>Java日志系统 | 吴超群的个人网站</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="StudyNotes,java,log,">
+  
+
+  
+  <meta name="description" content="java 日志系统的发展历史与趋势，为什么出现，有什么什么不足？">
+
+  
+
+  <script src="//cdn.jsdelivr.net/npm/leancloud-storage@3.11.1/dist/av-min.js" async></script>
+
+  
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+  
+
+  
+    <script src="//unpkg.com/valine/dist/Valine.min.js" async></script>
+  
+
+  
+
+  <script>
+  // theme-ad's config script
+  // it can be used in every script
+  
+  window.AD_CONFIG = {
+    leancloud: {"appid":"VUHeKJKuF54qJr7tPX8OpDUd-gzGzoHsz","appkey":"piJgDncvGEREKtRhOyrPWbJX","comment":true,"count":true},
+    welcome: {"enable":true,"interval":10},
+    start_time: "2019-03-17",
+    passwords: ["efe07af7441da2b69c4a41e42e73be4db47f66010a56900788a458354a7373ec", ],
+    is_post: true,
+    lock: false,
+    author: "Dong Yuanxin",
+    share: {"twitter":true,"facebook":true,"weibo":true,"qq":true,"wechat":true},
+    mathjax: true,
+    page_type: "",
+    root: "/"
+  };
+</script>
+
+  <script src="/vendor/sha256.min.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/index.js"></script>
+<script src="/vendor/qrcode.min.js"></script>
+
+  
+    <link rel="icon" href="/images/favicon.ico">
+    <link rel="apple-touch-icon" href="/images/touch-icon.png">
+  
+
+  <link href="//netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+  <link rel="stylesheet" href="/css/index.css">
+<link rel="stylesheet" href="/styles/components/highlight/highlight.css">
+
+  
+</head>
+  <body>
+    <header class="site-header">
+  <div class="site-header-brand">
+    
+      <span class="site-header-brand-title">
+        <a href="/">CHAOQUN</a>
+      </span>
+    
+    
+      <span class="site-header-brand-motto"> | 努力努力再努力</span>
+    
+  </div>
+  <div class="site-header-right">
+    <nav class="site-header-navigation">
+      
+        <a href="/" target="_self">首页</a>
+      
+        <a href="/archives/" target="_self">归档</a>
+      
+        <a href="/tags/" target="_self">标签</a>
+      
+        <a href="/categories/" target="_self">分类</a>
+      
+        <a href="/friends/" target="_self">友链</a>
+      
+        <a href="/about/" target="_self">关于</a>
+      
+    </nav>
+    <div class="site-header-btn">
+      
+        <a href="https://github.com/Conner-chaoqun/" target="_blank" id="site-github">
+          <i class="fa fa-github-alt"></i>
+        </a>
+      
+      <a href="javascript:void(0);" id="site-search">
+        <i class="fa fa-search"></i>
+      </a>
+      <a href="javascript:void(0);" id="site-nav-btn">
+        <i class="fa fa-ellipsis-v"></i>
+      </a>
+    </div>
+  </div>
+</header>
+<nav class="table-content" id="site-nav">
+  <div class="table-content-title">
+    <span>导航</span>
+  </div>
+  <div class="table-content-main">
+    <ol class="toc">
+      
+        <li class="toc-item">
+          <a href="/" target="_self">
+            首页
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/archives/" target="_self">
+            归档
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/tags/" target="_self">
+            标签
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/categories/" target="_self">
+            分类
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/friends/" target="_self">
+            友链
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/about/" target="_self">
+            关于
+          </a>
+        </li>
+      
+    </ol>
+  </div>
+</nav>
+<div id="site-process"></div>
+    <main>
+      
+  <div class="passage">
+  <div class="passage-meta">
+    <span>
+      <i class="fa fa-calendar"></i>2019-03-26
+    </span>
+    
+      <span>
+        | <a href="/categories/StudyNotes/"><i class="fa fa-bookmark"></i>StudyNotes</a>
+      </span>
+    
+    
+      <span>
+        | <i class="fa fa-unlock-alt"></i>UNLOCK
+      </span>
+    
+  </div>
+  <h1 class="passage-title">
+    Java日志系统
+  </h1>
+  
+  <article class="passage-article">
+    <h2 id="java-日志系统"><a href="#java-日志系统" class="headerlink" title="java 日志系统"></a>java 日志系统</h2><h3 id="log4j"><a href="#log4j" class="headerlink" title="log4j"></a>log4j</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> org.apache.log4j.Logger;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Log4jDemo</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> Logger logger = Logger.getLogger(Log4jDemo.class);</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        logger.info(<span class="string">"hello, log4j!"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>基本理念，构成：</p>
+<ul>
+<li><p>Logger：记录日志的对象</p>
+</li>
+<li><p>Appender：日志输出源</p>
+</li>
+<li><p>Level：日志级别</p>
+</li>
+</ul>
+<h3 id="jul-java-util-logging"><a href="#jul-java-util-logging" class="headerlink" title="jul - java.util.logging"></a>jul - java.util.logging</h3><p>官方日志系统，借鉴log4j的理念，使用上也大同小异</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.logging.LogManager;</span><br><span class="line"><span class="keyword">import</span> java.util.logging.Logger;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">JulDemo</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> Logger logger = Logger.getLogger(<span class="string">"JulDemo"</span>);</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        logger.info(<span class="string">"Hello Jul!"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="jcl-Jakarta-Commons-Logging"><a href="#jcl-Jakarta-Commons-Logging" class="headerlink" title="jcl - Jakarta Commons Logging"></a>jcl - Jakarta Commons Logging</h3><p>为了解决jul出现之后，带来的java日志系统的混乱。Apache推出commons-logging框架，来解决连接和适配的作用。</p>
+<p>类似一个公共的接口，而log4j和jul都是具体的实现。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> org.apache.commons.logging.Log;</span><br><span class="line"><span class="keyword">import</span> org.apache.commons.logging.LogFactory;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Log4jDemo</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> Log logger = LogFactory.getLog(Log4jDemo.class);</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        logger.info(<span class="string">"hello log4j!"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>LogFactory会在运行期间自动查找具体的日志实现，按照一个设定的路径进行匹配：</p>
+<ol>
+<li><p>查找 org.apache.commons.logging.Log 配置项，根据配置项的值来直接获取具体的日志实现。配置项可以在代码中，或者在 commons-logging.properties 配置文件中；</p>
+</li>
+<li><p>在系统变量中查找 org.apache.commons.logging.Log 配置项；</p>
+</li>
+<li><p>如果当前项目下使用的是 log4j 日志系统，那么使用 log4j 作为实现类，这里使用的是包装类 Log4JLogger；</p>
+</li>
+<li><p>如果当前项目下使用的是 jul 系统，那么使用 jul 作为实现类，这里使用的是包装类 Jdk14Logger；</p>
+</li>
+<li><p>如果以上全部不匹配，那么使用最简单最基础的日志类 SimpleLog。</p>
+</li>
+</ol>
+<p>上面的 Log4JLogger、Jdk14Logger 与 SimpleLog 都位于 org.apache.commons.logging.impl 包下，是 jcl 中自带的包装类，它们都实现了 org.apache.commons.logging.Log 接口，并分别<strong>包装了对应的日志对象，最后将日志操作转交到日志对象上进行</strong>。例如 Log4JLogger 中包装了 log4j 的日志类，最终的日志操作是由 log4j 来完成。</p>
+<p>这也正是 jcl 的简单原理，它<strong>抽象出一个通用的日志接口</strong>，对每个日志的<strong>具体实现进行了适配</strong>，开发者统一使用接口层，并且可以自由配置具体的日志实现。</p>
+<h3 id="slf4j-与-logback"><a href="#slf4j-与-logback" class="headerlink" title="slf4j 与 logback"></a>slf4j 与 logback</h3><p>jcl 貌似已经解决了问题，但事实并非如此。因为jcl是在运行期间查找符合条件的日志类，然后使用类加载的方式加载指定类。但是类加载会带来一些不可预知的错误，而且增加了调试难度。具体细节日后补充。</p>
+<p>所以log4j的作者发起来slf4j的项目。同样是提供一个公共的接口，开发者只需要关注上层的接口，无需考虑下层的实现。只要slf4j的实现遵循一个接口，各个不同的日志系统之间可以无缝连接。</p>
+<p>logback 就是 slf4j 的官方实现，对比 log4j 有更强的性能。==slf4j + logback== 也正在成为最流行的日志框架选择。</p>
+<p>slf4j 和 jcl 的实现原理到底有什么不同呢？jcl 是通过类加载的机制，在运行期间动态查找到具体的实现类。而 slf4j 是在==编译期间对具体的实现类进行绑定==。编译时，它会查找类路径下的 org.slf4j.impl.StaticLoggerBinder，绑定工作都会在这个类中进行。如果类路径下有多个 StaticLoggerBinder，编译器会给出警告。因此 sjf4j 是在编译期间静态绑定具体的 Log 实现，从而无需在运行期间进行动态查找，这样不仅避免了类加载过程中的各种问题，也提升了性能。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> org.slf4j.Logger;</span><br><span class="line"><span class="keyword">import</span> org.slf4j.LoggerFactory;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Slf4jDemo</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> Logger logger = LoggerFactory.getLogger(Slf4jDemo.class);</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        logger.info(<span class="string">"hello slf4j!"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="log4j2"><a href="#log4j2" class="headerlink" title="log4j2"></a>log4j2</h3><p>log4j2 又是 log4j、slf4j、logback 的作者的新作品。它对 log4j 做了很大的改进，提供了多种现代特性，而且它的异步性能优越，在分布式系统中性能要远好于 logback，同时也支持 slf4j 与 jcl。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ul>
+<li><p>log4j 打开日志系统的大门，成为后面的标准。</p>
+</li>
+<li><p>jul 的官方实现，与log4j 不兼容，造成了日志的混乱。</p>
+</li>
+<li><p>jcl 提供抽象接口来统一日志系统。</p>
+</li>
+<li><p>jcl 基于运行期间类加载的机制，会有问题，不够好，所以 log4j 的作者写了一个抽象框架 slf4j 并直接提供了一套实现，也是新的日志系统，logback。</p>
+</li>
+<li><p>后来作者改进了 log4j，推出log4j2。</p>
+</li>
+</ul>
+<p>另外，前面提到了日志系统和日志框架两个名词，这是两个不同的东西：</p>
+<ul>
+<li>日志框架：只是一种日志接口，不负责具体的日志输出实现，而是通过配置来灵活的选择具体的日志系统。例如 jcl、slf4j 就是日志框架，它们只提供了接口，没有提供具体的日志系统实现；</li>
+<li>日志系统：真正的日志实现，如 log4j、jul、logback 与 log4j2 都是具体的日志系统实现。</li>
+</ul>
+<p>日志框架与系统，可以理解为 Java 中的接口与具体实现类。理想的日志使用模式是，代码中全部使用日志框架的 API 接口，在配置文件中配置具体的日志系统实现，这样可以通过配置来灵活切换不同的日志系统，而不用修改代码。</p>
+<p>另外我们知道日志框架与日志系统是相互配合来使用，这其中会通过<strong>适配与桥接</strong>来完成。以 slf4j 举例来说：</p>
+<ul>
+<li><strong>适配就是选择 slf4j 具体的日志实现类</strong>，例如使用 logback-classic 会选择 logback 作为日志实现，而使用 slf4j-log4j12 会选择 log4j 作为日志实现。</li>
+<li><strong>桥接是将当前其他的日志框架或者日志系统，最终转发到 slf4j 上。</strong>例如原系统使用 jcl，那么可以通过 jcl-over-slf4j 桥接到 slf4j 上，最终日志请求会从 jcl 转发到 slf4j 上，再适配到具体的日志实现上，最终得到日志输出。</li>
+</ul>
+<p><img src="http://patchouli-know.com/assets/java_log_conversion.png" alt="Java æ¥å¿è½¬æ¢"></p>
+<h3 id="slf4j-logback"><a href="#slf4j-logback" class="headerlink" title="slf4j + logback"></a>slf4j + logback</h3><p>这是一种常用的日志使用方式，在较新的应用中越来越流行。它使用 slf4j 的日志 API 接口，使用 logback 作为具体的日志实现。该方式需要的包也非常简单：</p>
+<ul>
+<li>slf4j-api</li>
+<li>logback-core</li>
+<li>logback-classic</li>
+</ul>
+<p>一个具体的日志操作的过程，大概是首先调用 slf4j 的 API 接口，然后 slf4j 将请求转发给 slf4j-log4j12 来处理，这个是在编译期间静态绑定好的。然后 slf4j-log4j12 最后通过 log4j 来完成日志操作。</p>
+  </article>
+  <aside class="table-content" id="site-toc">
+  <div class="table-content-title">
+    <i class="fa fa-arrow-right fa-lg" id="site-toc-hide-btn"></i>
+    <span>目录</span>
+  </div>
+  <div class="table-content-main">
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#java-日志系统"><span class="toc-text">java 日志系统</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#log4j"><span class="toc-text">log4j</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#jul-java-util-logging"><span class="toc-text">jul - java.util.logging</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#jcl-Jakarta-Commons-Logging"><span class="toc-text">jcl - Jakarta Commons Logging</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#slf4j-与-logback"><span class="toc-text">slf4j 与 logback</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#log4j2"><span class="toc-text">log4j2</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-text">总结</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#slf4j-logback"><span class="toc-text">slf4j + logback</span></a></li></ol></li></ol>
+  </div>
+</aside>
+  
+    <aside class="passage-copyright">
+      <div>本文作者: 吴超群</div>
+      
+        <div>
+          原文链接: 
+          <a href target="_blank">http://blog.chaoqun.ink/passages/2019-03-26-java-log/</a>
+        </div>
+      
+      <div>
+        版权声明: 本博客所有文章除特别声明外, 均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议. 转载请注明出处!
+      </div>
+    </aside>
+  
+  
+    <div class="passage-tags">
+     
+      <a href="/tags/java/"><i class="fa fa-tags"></i>java</a>
+     
+      <a href="/tags/log/"><i class="fa fa-tags"></i>log</a>
+    
+    </div>
+  
+</div>
+
+    </main>
+    
+      
+<div class="site-comment-contanier" data-plateform="leancloud">
+  
+    <p id="site-comment-info">
+      <i class="fa fa-spinner fa-spin"></i> 评论加载中
+    </p>
+    <div id="site-comment"></div>
+  
+</div>
+    
+    <div class="site-footer-wrapper">
+  <footer class="site-footer">
+    
+      <div class="site-footer-col">
+        <h5 class="site-footer-title">博客推荐</h5>
+        
+          <span class="site-footer-item">
+            <a href="https://wyydsb.xin/" target="_blank">Gunjianpan</a>
+          </span>
+        
+      </div>
+    
+      <div class="site-footer-col">
+        <h5 class="site-footer-title">抓到我</h5>
+        
+          <span class="site-footer-item">
+            <a href="http://chaoqun.ink" target="_blank">old version</a>
+          </span>
+        
+      </div>
+    
+    <div class="site-footer-info">
+      <i class="fa fa-clock-o"></i> 本站已稳定运行<span id="site-time"></span>
+    </div>
+    
+      <div class="site-footer-info">
+        <i class="fa fa-paw"></i> 您是本站第 <span id="site-count"></span> 位访客
+      </div>
+    
+    
+      <div class="site-footer-info">
+        <i class="fa fa-at"></i> Email: chaoqun@pku.edu.cn
+      </div>
+    
+    <div class="site-footer-info">
+      <i class="fa fa-copyright"></i> 
+      2019 <a href="https://github.com/dongyuanxin/theme-ad/" target="_blank">Theme-AD</a>.
+      Created by <a href="https://godbmw.com/" target="_blank">GodBMW</a>.
+      All rights reserved.
+    </div>
+  </footer>
+</div>
+    <div id="site-layer" style="display:none;">
+  <div class="site-layer-content">
+    <div class="site-layer-header">
+      <span class="site-layer-header-title" id="site-layer-title"></span>
+      <i class="fa fa-close" id="site-layer-close"></i>
+    </div>
+    <div class="site-layer-body" id="site-layer-container">
+      <div class="site-layer-input" id="site-layer-search" style="display: none;">
+        <input type="text">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="site-layer-reward" id="site-layer-reward" style="display: none;">
+        
+          <div>
+            <img src="/images/wechat.png" alt="WeChat">
+            
+              <p>WeChat</p>
+            
+          </div>
+        
+          <div>
+            <img src="/images/alipay.png" alt="AliPay">
+            
+              <p>AliPay</p>
+            
+          </div>
+        
+      </div>
+      <div id="site-layer-welcome" style="display:none;"></div>
+    </div>
+  </div>
+</div>
+    
+
+<div class="bottom-bar">
+  <div class="bottom-bar-left">
+    <a href="javascript:void(0);" data-enable="false">
+      <i class="fa fa-arrow-left"></i>
+    </a>
+    <a href="/passages/2019-03-19-crawler-weather-API/" data-enable="true">
+      <i class="fa fa-arrow-right"></i>
+    </a>
+  </div>
+  <div class="bottom-bar-right">
+    <a href="javascript:void(0);" data-enable="true" id="site-toc-show-btn">
+      <i class="fa fa-bars"></i>
+    </a>
+    
+      <a href="#site-comment" data-enable="true">
+        <i class="fa fa-commenting"></i>
+      </a>
+    
+    <a href="javascript:void(0);" id="site-toggle-share-btn">
+      <i class="fa fa-share-alt"></i>
+    </a>
+    <a href="javascript:void(0);" id="site-reward">
+      <i class="fa fa-thumbs-up"></i>
+    </a>
+    <a href="javascript:void(0);" id="back-top-btn">
+      <i class="fa fa-chevron-up"></i>
+    </a>
+  </div>
+</div>
+    <div id="share-btn">
+  
+    <a id="share-btn-twitter" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-twitter"></i>
+    </a>
+  
+  
+    <a id="share-btn-facebook" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-facebook"></i>
+    </a>
+  
+  
+    <a id="share-btn-weibo" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-weibo"></i>
+    </a>
+  
+  
+    <a id="share-btn-qq" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-qq"></i>
+    </a>
+  
+  
+    <a id="share-btn-wechat" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-wechat"></i>
+    </a>
+  
+</div>
+    
+
+
+  <script async>
+  (function(){
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      if (curProtocol === 'https') {
+          bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+      }
+      else {
+          bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+      }
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+  })();
+  </script>
+
+
+
+
+    
+  </body>
+</html>

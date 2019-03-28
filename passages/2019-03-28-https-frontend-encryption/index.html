@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html>
+  
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  <meta name="author" content="Dong Yuanxin">
+  
+  
+  <title>Https_frontend_encryption 前端加密还是后端加密 | 吴超群的个人网站</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="Coursework,https,前端,后端,">
+  
+
+  
+  <meta name="description" content="HTPPS下，前端加密还是后端加密？">
+
+  
+
+  <script src="//cdn.jsdelivr.net/npm/leancloud-storage@3.11.1/dist/av-min.js" async></script>
+
+  
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+  
+
+  
+    <script src="//unpkg.com/valine/dist/Valine.min.js" async></script>
+  
+
+  
+
+  <script>
+  // theme-ad's config script
+  // it can be used in every script
+  
+  window.AD_CONFIG = {
+    leancloud: {"appid":"VUHeKJKuF54qJr7tPX8OpDUd-gzGzoHsz","appkey":"piJgDncvGEREKtRhOyrPWbJX","comment":true,"count":true},
+    welcome: {"enable":true,"interval":10},
+    start_time: "2019-03-17",
+    passwords: ["efe07af7441da2b69c4a41e42e73be4db47f66010a56900788a458354a7373ec", ],
+    is_post: true,
+    lock: false,
+    author: "Dong Yuanxin",
+    share: {"twitter":true,"facebook":true,"weibo":true,"qq":true,"wechat":true},
+    mathjax: true,
+    page_type: "",
+    root: "/"
+  };
+</script>
+
+  <script src="/vendor/sha256.min.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/index.js"></script>
+<script src="/vendor/qrcode.min.js"></script>
+
+  
+    <link rel="icon" href="/images/favicon.ico">
+    <link rel="apple-touch-icon" href="/images/touch-icon.png">
+  
+
+  <link href="//netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+  <link rel="stylesheet" href="/css/index.css">
+<link rel="stylesheet" href="/styles/components/highlight/highlight.css">
+
+  
+</head>
+  <body>
+    <header class="site-header">
+  <div class="site-header-brand">
+    
+      <span class="site-header-brand-title">
+        <a href="/">CHAOQUN</a>
+      </span>
+    
+    
+      <span class="site-header-brand-motto"> | 努力努力再努力</span>
+    
+  </div>
+  <div class="site-header-right">
+    <nav class="site-header-navigation">
+      
+        <a href="/" target="_self">首页</a>
+      
+        <a href="/archives/" target="_self">归档</a>
+      
+        <a href="/tags/" target="_self">标签</a>
+      
+        <a href="/categories/" target="_self">分类</a>
+      
+        <a href="/friends/" target="_self">友链</a>
+      
+        <a href="/about/" target="_self">关于</a>
+      
+    </nav>
+    <div class="site-header-btn">
+      
+        <a href="https://github.com/Conner-chaoqun/" target="_blank" id="site-github">
+          <i class="fa fa-github-alt"></i>
+        </a>
+      
+      <a href="javascript:void(0);" id="site-search">
+        <i class="fa fa-search"></i>
+      </a>
+      <a href="javascript:void(0);" id="site-nav-btn">
+        <i class="fa fa-ellipsis-v"></i>
+      </a>
+    </div>
+  </div>
+</header>
+<nav class="table-content" id="site-nav">
+  <div class="table-content-title">
+    <span>导航</span>
+  </div>
+  <div class="table-content-main">
+    <ol class="toc">
+      
+        <li class="toc-item">
+          <a href="/" target="_self">
+            首页
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/archives/" target="_self">
+            归档
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/tags/" target="_self">
+            标签
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/categories/" target="_self">
+            分类
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/friends/" target="_self">
+            友链
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/about/" target="_self">
+            关于
+          </a>
+        </li>
+      
+    </ol>
+  </div>
+</nav>
+<div id="site-process"></div>
+    <main>
+      
+  <div class="passage">
+  <div class="passage-meta">
+    <span>
+      <i class="fa fa-calendar"></i>2019-03-28
+    </span>
+    
+      <span>
+        | <a href="/categories/Coursework/"><i class="fa fa-bookmark"></i>Coursework</a>
+      </span>
+    
+    
+      <span>
+        | <i class="fa fa-unlock-alt"></i>UNLOCK
+      </span>
+    
+  </div>
+  <h1 class="passage-title">
+    Https_frontend_encryption 前端加密还是后端加密
+  </h1>
+  
+  <article class="passage-article">
+    <h1 id="HTTPS，前端是否需要加密"><a href="#HTTPS，前端是否需要加密" class="headerlink" title="HTTPS，前端是否需要加密"></a>HTTPS，前端是否需要加密</h1><p>分析在HTTPS的环境下，对于用户登录这类，涉及隐私信息(密码)的场景，我们是否有必要进行前端加密。</p>
+<p>首先这个加密是宽泛意义的，不是特指安全，密码学的相关知识，还包括简单的不可逆的hash。</p>
+<p>其重点是将明文密码隐秘化。</p>
+<h2 id="什么是HTTPS"><a href="#什么是HTTPS" class="headerlink" title="什么是HTTPS"></a>什么是HTTPS</h2><p>在分析之前，先简单介绍一下HTTPS。在之前使用不加密的HTTP通信，就是信息的明文传播，带来了三大风险：</p>
+<ol>
+<li>窃听风险</li>
+<li>篡改风险</li>
+<li>冒充风险</li>
+</ol>
+<p>HTTP+SSL=HTTPS，为了解决这三大问题，希望达到：</p>
+<ol>
+<li>信息是加密的，无法被窃听</li>
+<li>具有校验机制，被中间人篡改会被发现</li>
+<li>配备身份证书，防止中间人冒充</li>
+</ol>
+<p>细节部分可以自行查阅或者查看参考链接，简单来说就是<strong>非对称加密+对称加密</strong>。</p>
+<p>为了确保非对称加密中，双方的公钥在传输过程中不被劫持篡改，把<strong>公钥放在数字签名</strong>中，只要证书是可信的，那么公钥就是可信的。</p>
+<p>根据第一次客户端到服务器的随机数，第二次服务器到客户端的随机数，加上第三次客户端生成的<strong>随机数(“pre-master key”)</strong>，客户端生成会话的<strong>对称密钥</strong>，通过服务器的公钥加密，然后发送给服务器，服务器收到后，用私钥进行解密，获取到对称密钥。</p>
+<p>到了这一步之后，就可以利用<strong>对称密钥进行加密通信</strong>，可以完全使用普通的HTTP协议进行传输。</p>
+<h2 id="信道安全，前端要不要加密"><a href="#信道安全，前端要不要加密" class="headerlink" title="信道安全，前端要不要加密"></a>信道安全，前端要不要加密</h2><p>本人一开始的看法是，不需要加密。</p>
+<p>因为在HTTPS的保障下信道安全的角度下，传明文还是一个”加密”的密码没有太大的意义，就算在服务器端出现漏洞，泄露了密码，加密的密码其实也可以看成就是你设置的一个随机的密码。原来我需要知道你们的密码明文来登录，现在我用加密后的密码来登录，其实并没有什么区别。</p>
+<p>对于整个系统来说，<strong>安全性</strong>并没有因为上传密码之前做一次加密而提高。</p>
+<p>而一般来说，我们需要考虑的是数据库被托库之后，保证用户的密码不被窃取。所以主流的做法是：</p>
+<ol>
+<li>数据库切不可存明文</li>
+<li>可以多次hash(MD5)提高攻击成本</li>
+<li>可以针对每一个密码进行加salt处理</li>
+</ol>
+<p>好的，后端怎么做没有什么疑惑了，那么前端到底要不要加密，是不是真如我所想，不需要加密呢？</p>
+<p>这里我在知乎(币乎)搜了一下，有一个相似程度极高的问题。所以我看了一下，并做了思考：</p>
+<h3 id="WEB前端密码加密是否有意义？"><a href="#WEB前端密码加密是否有意义？" class="headerlink" title="WEB前端密码加密是否有意义？"></a>WEB前端密码加密是否有意义？</h3><h4 id="既然前端的密码都是直接可以看到的，那么加密是否还有意义"><a href="#既然前端的密码都是直接可以看到的，那么加密是否还有意义" class="headerlink" title="既然前端的密码都是直接可以看到的，那么加密是否还有意义"></a>既然前端的密码都是直接可以看到的，那么加密是否还有意义</h4><p>我浏览了一下答案后，很多答案都提到了eldereal的答案，所以我找到他的答案：</p>
+<p><img src="https://ws1.sinaimg.cn/large/006aWQZaly1g1if6y6fehj312g0skqcm.jpg" alt="屏幕快照 2019-03-28 上午10.28.10"></p>
+<p>这个回答是2014年，他的角度主要是不能依赖前端加密而后端什么都不做，也就是把后端加密的工作挪到前端是含无意义的。其次是在http明文传输的协议下，前端的简单加密或者说hash是没有作用，并不能保障系统的安全。</p>
+<p>最后这段话，我是很赞同的。</p>
+<blockquote>
+<p>由于前端是不是加密，所有安全机制都必须照常应用，所以为系统增加这样的复杂性是完全没必要的，即使传输明文密码，只要正确使用了HTTPS连接和服务器端安全的哈希算法，密码系统都可以是很安全的。</p>
+</blockquote>
+<p>好，这是不要加密的阵营，我还发现知乎大V轮子哥的发言：</p>
+<p><img src="https://ws1.sinaimg.cn/large/006aWQZaly1g1if7ajteaj311207w75t.jpg" alt="屏幕快照 2019-03-28 上午10.50.44"></p>
+<p>时间线离我们很近，还是相同的理由。</p>
+<p>下面我搜寻要加密的阵营的答案：</p>
+<p><img src="https://ws1.sinaimg.cn/large/006aWQZaly1g1if7kkrnwj311q0oiag5.jpg" alt="屏幕快照 2019-03-28 下午12.31.39"></p>
+<p>答主是一个安全相关专业的学生，他的观点指出前端的加密不是简单的hash(MD5)那么简单就可以概括的，比如说可以收到服务器传递的随机数salt再hash保证窃听到的hash值每一次都是不一样的。</p>
+<p>同时他也指出在https的大环境环境下，前端加密与否更重要的在于保证服务器数据的隐秘性。在HTTPS保证信道安全的基础上，不希望网站可以知道用户的明文密码。</p>
+<p><strong>所以我认为</strong>有了HTTPS，已经能够防止中间人的窃听，这首先不需要前端来加密实现，而且仅仅靠前端的加密(即使依赖相关密码学知识)也是无法抵御中间人问题，究其所以是因为信任的问题。正也是为什么HTTPS需要数字证书来保证信任。所以仅剩下的前端加密的真正价值可能只是一种对用户来说的隐私保护服务。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>综上所述，我认为在HTTPS的环境下，前端加密是存在意义的，这个意义不在于是来保证网站的一个安全性，更多的是提供一种对用户来说的隐私保护服务。</p>
+<p>至于要不要前端加密，就取决于当前具体的业务。如果用户有想要保护隐私的一个强烈的诉求，可以。但是如果没有，也可以不加密，舍弃这些相关的逻辑，也不会对网站的安全造成较大的影响。</p>
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p><a href="https://www.zhihu.com/question/25539382" target="_blank" rel="noopener">知乎问题</a></p>
+<p><a href="http://www.ruanyifeng.com/blog/2014/02/ssl_tls.html" target="_blank" rel="noopener">SSL/TLS协议运行机制的概述</a></p>
+  </article>
+  <aside class="table-content" id="site-toc">
+  <div class="table-content-title">
+    <i class="fa fa-arrow-right fa-lg" id="site-toc-hide-btn"></i>
+    <span>目录</span>
+  </div>
+  <div class="table-content-main">
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#HTTPS，前端是否需要加密"><span class="toc-text">HTTPS，前端是否需要加密</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#什么是HTTPS"><span class="toc-text">什么是HTTPS</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#信道安全，前端要不要加密"><span class="toc-text">信道安全，前端要不要加密</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#WEB前端密码加密是否有意义？"><span class="toc-text">WEB前端密码加密是否有意义？</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#既然前端的密码都是直接可以看到的，那么加密是否还有意义"><span class="toc-text">既然前端的密码都是直接可以看到的，那么加密是否还有意义</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-text">总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考文献"><span class="toc-text">参考文献</span></a></li></ol></li></ol>
+  </div>
+</aside>
+  
+    <aside class="passage-copyright">
+      <div>本文作者: 吴超群</div>
+      
+        <div>
+          原文链接: 
+          <a href target="_blank">http://blog.chaoqun.ink/passages/2019-03-28-https-frontend-encryption/</a>
+        </div>
+      
+      <div>
+        版权声明: 本博客所有文章除特别声明外, 均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议. 转载请注明出处!
+      </div>
+    </aside>
+  
+  
+    <div class="passage-tags">
+     
+      <a href="/tags/https/"><i class="fa fa-tags"></i>https</a>
+     
+      <a href="/tags/前端/"><i class="fa fa-tags"></i>前端</a>
+     
+      <a href="/tags/后端/"><i class="fa fa-tags"></i>后端</a>
+    
+    </div>
+  
+</div>
+
+    </main>
+    
+      
+<div class="site-comment-contanier" data-plateform="leancloud">
+  
+    <p id="site-comment-info">
+      <i class="fa fa-spinner fa-spin"></i> 评论加载中
+    </p>
+    <div id="site-comment"></div>
+  
+</div>
+    
+    <div class="site-footer-wrapper">
+  <footer class="site-footer">
+    
+      <div class="site-footer-col">
+        <h5 class="site-footer-title">博客推荐</h5>
+        
+          <span class="site-footer-item">
+            <a href="https://wyydsb.xin/" target="_blank">Gunjianpan</a>
+          </span>
+        
+      </div>
+    
+      <div class="site-footer-col">
+        <h5 class="site-footer-title">抓到我</h5>
+        
+          <span class="site-footer-item">
+            <a href="http://chaoqun.ink" target="_blank">old version</a>
+          </span>
+        
+      </div>
+    
+    <div class="site-footer-info">
+      <i class="fa fa-clock-o"></i> 本站已稳定运行<span id="site-time"></span>
+    </div>
+    
+      <div class="site-footer-info">
+        <i class="fa fa-paw"></i> 您是本站第 <span id="site-count"></span> 位访客
+      </div>
+    
+    
+      <div class="site-footer-info">
+        <i class="fa fa-at"></i> Email: chaoqun@pku.edu.cn
+      </div>
+    
+    <div class="site-footer-info">
+      <i class="fa fa-copyright"></i> 
+      2019 <a href="https://github.com/dongyuanxin/theme-ad/" target="_blank">Theme-AD</a>.
+      Created by <a href="https://godbmw.com/" target="_blank">GodBMW</a>.
+      All rights reserved.
+    </div>
+  </footer>
+</div>
+    <div id="site-layer" style="display:none;">
+  <div class="site-layer-content">
+    <div class="site-layer-header">
+      <span class="site-layer-header-title" id="site-layer-title"></span>
+      <i class="fa fa-close" id="site-layer-close"></i>
+    </div>
+    <div class="site-layer-body" id="site-layer-container">
+      <div class="site-layer-input" id="site-layer-search" style="display: none;">
+        <input type="text">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="site-layer-reward" id="site-layer-reward" style="display: none;">
+        
+          <div>
+            <img src="/images/wechat.png" alt="WeChat">
+            
+              <p>WeChat</p>
+            
+          </div>
+        
+          <div>
+            <img src="/images/alipay.png" alt="AliPay">
+            
+              <p>AliPay</p>
+            
+          </div>
+        
+      </div>
+      <div id="site-layer-welcome" style="display:none;"></div>
+    </div>
+  </div>
+</div>
+    
+
+<div class="bottom-bar">
+  <div class="bottom-bar-left">
+    <a href="javascript:void(0);" data-enable="false">
+      <i class="fa fa-arrow-left"></i>
+    </a>
+    <a href="/passages/2019-03-26-java-log/" data-enable="true">
+      <i class="fa fa-arrow-right"></i>
+    </a>
+  </div>
+  <div class="bottom-bar-right">
+    <a href="javascript:void(0);" data-enable="true" id="site-toc-show-btn">
+      <i class="fa fa-bars"></i>
+    </a>
+    
+      <a href="#site-comment" data-enable="true">
+        <i class="fa fa-commenting"></i>
+      </a>
+    
+    <a href="javascript:void(0);" id="site-toggle-share-btn">
+      <i class="fa fa-share-alt"></i>
+    </a>
+    <a href="javascript:void(0);" id="site-reward">
+      <i class="fa fa-thumbs-up"></i>
+    </a>
+    <a href="javascript:void(0);" id="back-top-btn">
+      <i class="fa fa-chevron-up"></i>
+    </a>
+  </div>
+</div>
+    <div id="share-btn">
+  
+    <a id="share-btn-twitter" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-twitter"></i>
+    </a>
+  
+  
+    <a id="share-btn-facebook" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-facebook"></i>
+    </a>
+  
+  
+    <a id="share-btn-weibo" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-weibo"></i>
+    </a>
+  
+  
+    <a id="share-btn-qq" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-qq"></i>
+    </a>
+  
+  
+    <a id="share-btn-wechat" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-wechat"></i>
+    </a>
+  
+</div>
+    
+
+
+  <script async>
+  (function(){
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      if (curProtocol === 'https') {
+          bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+      }
+      else {
+          bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+      }
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+  })();
+  </script>
+
+
+
+
+    
+  </body>
+</html>
